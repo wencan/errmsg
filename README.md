@@ -1,0 +1,2 @@
+# errmsg
+structured error representation
