@@ -22,7 +22,7 @@ func TestErrMsg(t *testing.T) {
 	errMsg := errmsg.WrapError(errmsg.ErrUnavailable, err)
 	assert.Implements(t, (*error)(nil), errMsg)
 	assert.Equal(t, errmsg.ErrUnavailable, errMsg.Status)
-	assert.Equal(t, errString, errMsg.Msg)
+	assert.Equal(t, errString, errMsg.Message)
 	assert.Equal(t, "", errMsg.Stack)
 }
 
@@ -58,6 +58,6 @@ func TestErrMsgWithStack(t *testing.T) {
 	errMsg := errmsg.WrapErrorWithStack(errmsg.ErrUnavailable, err)
 	assert.Implements(t, (*error)(nil), errMsg)
 	assert.Equal(t, errmsg.ErrUnavailable, errMsg.Status)
-	assert.Equal(t, errString, errMsg.Msg)
+	assert.Equal(t, errString, errMsg.Message)
 	assert.NotEqual(t, "", errMsg.Stack)
 }

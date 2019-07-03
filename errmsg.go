@@ -32,8 +32,8 @@ func SetFlags(flag int) {
 type ErrMsg struct {
 	error
 
-	Status ErrStatus `json:"status"`
-	Msg    string    `json:"message"`
+	Status  ErrStatus `json:"status"`
+	Message string    `json:"message"`
 
 	File string `json:"-"`
 	Line int    `json:"-"`
@@ -44,9 +44,9 @@ type ErrMsg struct {
 // WrapError Wrap a error object, attach error detail.
 func WrapError(status ErrStatus, err error) *ErrMsg {
 	errMsg := &ErrMsg{
-		error:  err,
-		Status: status,
-		Msg:    err.Error(),
+		error:   err,
+		Status:  status,
+		Message: err.Error(),
 	}
 	errMsg.appendFileLineIfNeed()
 	return errMsg
@@ -55,10 +55,10 @@ func WrapError(status ErrStatus, err error) *ErrMsg {
 // WrapErrorWithStack Wrap a error object, attach error detail and call stack
 func WrapErrorWithStack(status ErrStatus, err error) *ErrMsg {
 	errMsg := &ErrMsg{
-		error:  err,
-		Status: status,
-		Msg:    err.Error(),
-		Stack:  string(debug.Stack()),
+		error:   err,
+		Status:  status,
+		Message: err.Error(),
+		Stack:   string(debug.Stack()),
 	}
 	errMsg.appendFileLineIfNeed()
 	return errMsg
