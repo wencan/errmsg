@@ -9,6 +9,8 @@ import (
 	"errors"
 	"testing"
 
+	"google.golang.org/grpc/status"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/wencan/errmsg"
 	errmsg_grpc "github.com/wencan/errmsg/grpc"
@@ -18,19 +20,22 @@ import (
 func TestStatus(t *testing.T) {
 	errString := "this is a test"
 	err := errmsg.WrapError(errmsg.ErrNotFound, errors.New(errString))
-	status := errmsg_grpc.Status(err)
-	assert.Equal(t, codes.NotFound, status.Code())
-	assert.Equal(t, errString, status.Message())
+	st := errmsg_grpc.Status(err)
+	assert.Equal(t, codes.NotFound, st.Code())
+	assert.Equal(t, errString, st.Message())
+	assert.Equal(t, codes.NotFound, status.Code(st.Err()))
 }
 
 func TestCustomStatus(t *testing.T) {
 	errCustom := errmsg.ErrStatus(1004)
 
 	err := errmsg.WrapError(errCustom, errors.New("test"))
-	status := errmsg_grpc.Status(err)
-	assert.Equal(t, codes.Unknown, status.Code())
+	st := errmsg_grpc.Status(err)
+	assert.Equal(t, codes.Unknown, st.Code())
+	assert.Equal(t, codes.Unknown, status.Code(st.Err()))
 
 	errmsg_grpc.BindCode(errCustom, codes.Internal)
-	status = errmsg_grpc.Status(err)
-	assert.Equal(t, codes.Internal, status.Code())
+	st = errmsg_grpc.Status(err)
+	assert.Equal(t, codes.Internal, st.Code())
+	assert.Equal(t, codes.Internal, status.Code(st.Err()))
 }
