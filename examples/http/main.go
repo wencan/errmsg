@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/wencan/errmsg"
@@ -55,6 +54,6 @@ func main() {
 	}
 	err := http.ListenAndServe("127.0.0.1:8080", handler)
 	if err != nil && err != http.ErrServerClosed {
-		log.Println(err)
+		logger.Error("failed to serve", zap.Error(err))
 	}
 }

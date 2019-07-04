@@ -63,6 +63,6 @@ func main() {
 	pb.RegisterGreeterServer(s, &server{Logger: logger})
 	reflection.Register(s) // for grpcurl
 	if err := s.Serve(ln); err != nil {
-		logger.Error("failed to servc", zap.Error(err))
+		logger.Error("failed to serve", zap.Error(err))
 	}
 }
