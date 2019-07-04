@@ -32,7 +32,7 @@ func SetFlags(flag int) {
 type ErrMsg struct {
 	error
 
-	Status  ErrStatus `json:"status"`
+	Status  ErrStatus `json:"-"`
 	Message string    `json:"message"`
 
 	File string `json:"-"`
@@ -79,9 +79,16 @@ func (errMsg *ErrMsg) appendFileLineIfNeed() {
 	}
 }
 
-// MarshalJSON Implement json.Marshaler
+// MarshalJSON Implement json.Marshaler.
+// Provide to the kit/transport.DefaultErrorEncoder.
 func (errMsg *ErrMsg) MarshalJSON() ([]byte, error) {
-	type Alias ErrMsg
-	err := Alias(*errMsg)
+	type Alias struct {
+		Status string `json:"status"`
+		ErrMsg
+	}
+	err := Alias{
+		ErrMsg: *errMsg,
+		Status: errMsg.Status.String(),
+	}
 	return json.Marshal(err)
 }
