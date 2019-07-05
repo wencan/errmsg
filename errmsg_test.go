@@ -61,3 +61,17 @@ func TestErrMsgWithStack(t *testing.T) {
 	assert.Equal(t, errString, errMsg.Message)
 	assert.NotEqual(t, "", errMsg.Stack)
 }
+
+func TestUnwrap(t *testing.T) {
+	errMsg := errmsg.Unwrap(nil)
+	assert.Equal(t, errmsg.ErrOK, errMsg.Status)
+
+	err := errors.New("this is a test")
+	errMsg = errmsg.Unwrap(err)
+	assert.Equal(t, errmsg.ErrUnknown, errMsg.Status)
+	assert.Equal(t, err.Error(), errMsg.Message)
+
+	errMsg = errmsg.Unwrap(errmsg.WrapError(errmsg.ErrCancelled, err))
+	assert.Equal(t, errmsg.ErrCancelled, errMsg.Status)
+	assert.Equal(t, err.Error(), errMsg.Message)
+}
