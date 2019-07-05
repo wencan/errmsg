@@ -8,7 +8,7 @@ structured error representation
 * translate error status to HTTP status and grpc codes, etc
 * translate error information to JSON body and grpc status, etc
 * wrap location where the error occurred
-* integrated zap
+* integrated zap and logrus
 
 ## Usage
 
