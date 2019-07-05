@@ -27,8 +27,9 @@ func Marshaler(err error) zapcore.ObjectMarshalerFunc {
 		if errMsg.Line != 0 {
 			enc.AddInt("line", errMsg.Line)
 		}
-
-		//no Stack
+		if errMsg.Stack != "" {
+			enc.AddString("stack", errMsg.Stack)
+		}
 
 		return nil
 	}
@@ -46,6 +47,9 @@ func Fields(err error) []zap.Field {
 	}
 	if errMsg.Line != 0 {
 		fields = append(fields, zap.Int("line", errMsg.Line))
+	}
+	if errMsg.Stack != "" {
+		fields = append(fields, zap.String("stack", errMsg.Stack))
 	}
 
 	return fields
