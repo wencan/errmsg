@@ -81,7 +81,7 @@ const (
 	ErrDeadlineExceeded
 )
 
-var status2Name = map[ErrStatus]string{
+var _ErrStatus_Names = map[ErrStatus]string{
 	ErrOK:                 "Ok",
 	ErrInvalidArgument:    "InvalidArgument",
 	ErrFailedPrecondition: "FailedPrecondition",
@@ -101,8 +101,16 @@ var status2Name = map[ErrStatus]string{
 	ErrDeadlineExceeded:   "DeadlineExceeded",
 }
 
+var _ErrStatus_Values = make(map[string]ErrStatus)
+
+func init() {
+	for status, statusName := range _ErrStatus_Names {
+		_ErrStatus_Values[statusName] = status
+	}
+}
+
 func (status ErrStatus) String() string {
-	name, exists := status2Name[status]
+	name, exists := _ErrStatus_Names[status]
 	if exists {
 		return name
 	}
@@ -111,5 +119,15 @@ func (status ErrStatus) String() string {
 
 // BindErrStatus Bind custom error status with name.
 func BindErrStatus(status ErrStatus, name string) {
-	status2Name[status] = name
+	_ErrStatus_Names[status] = name
+	_ErrStatus_Values[name] = status
+}
+
+// FromStatusName Convert status name to status value
+func FromStatusName(statusName string) ErrStatus {
+	status, exists := _ErrStatus_Values[statusName]
+	if !exists {
+		return ErrUnknown
+	}
+	return status
 }

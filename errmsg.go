@@ -11,6 +11,7 @@ package errmsg
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -44,7 +45,7 @@ func SetFlags(flag int) {
 
 // ErrMsg error detail
 type ErrMsg struct {
-	error
+	error // 如果是反序列化来的，error为nil
 
 	Status  ErrStatus `json:"-"`
 	Message string    `json:"message"`
@@ -82,6 +83,15 @@ func WrapErrorWithStack(status ErrStatus, err error) *ErrMsg {
 	return errMsg
 }
 
+func (errMsg *ErrMsg) Error() string {
+	// 如果是反序列化来的，error为nil
+	return errMsg.Message
+}
+
+func (errMsg *ErrMsg) String() string {
+	return fmt.Sprintf("status: %s, message: %s", errMsg.Status, errMsg.Message)
+}
+
 func (errMsg *ErrMsg) appendFileLineIfNeed() {
 	if flags&(Flongfile|Fshortfile) != 0 {
 		_, file, line, ok := runtime.Caller(2)
@@ -100,15 +110,35 @@ func (errMsg *ErrMsg) appendFileLineIfNeed() {
 // MarshalJSON Implement json.Marshaler.
 // Provide to the kit/transport.DefaultErrorEncoder.
 func (errMsg *ErrMsg) MarshalJSON() ([]byte, error) {
-	type Alias struct {
+	type Alias ErrMsg
+	alias := &struct {
+		*Alias
 		Status string `json:"status"`
-		ErrMsg
-	}
-	err := Alias{
-		ErrMsg: *errMsg,
+	}{
+		Alias:  (*Alias)(errMsg),
 		Status: errMsg.Status.String(),
 	}
-	return json.Marshal(err)
+	return json.Marshal(&alias)
+}
+
+// UnmarshalJSON Implement json.Unmarshaler.
+func (errMsg *ErrMsg) UnmarshalJSON(data []byte) error {
+	type Alias ErrMsg
+	alias := &struct {
+		*Alias
+		Status string `json:"status"`
+	}{
+		Alias:  (*Alias)(errMsg),
+		Status: errMsg.Status.String(),
+	}
+	err := json.Unmarshal(data, alias)
+	if err != nil {
+		return err
+	}
+
+	alias.Alias.Status = FromStatusName(alias.Status)
+
+	return nil
 }
 
 // Unwrap Unwrap a error to *ErrMsg.

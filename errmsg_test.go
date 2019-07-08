@@ -8,6 +8,7 @@ package errmsg_test
  */
 
 import (
+	"encoding/json"
 	"errors"
 	"runtime"
 	"testing"
@@ -74,4 +75,29 @@ func TestUnwrap(t *testing.T) {
 	errMsg = errmsg.Unwrap(errmsg.WrapError(errmsg.ErrCancelled, err))
 	assert.Equal(t, errmsg.ErrCancelled, errMsg.Status)
 	assert.Equal(t, err.Error(), errMsg.Message)
+}
+
+func TestMarshalJSON(t *testing.T) {
+	errString := "this is a test"
+	errMsg := errmsg.WrapError(errmsg.ErrDataLoss, errors.New(errString))
+	data, err := json.Marshal(errMsg)
+	if assert.NoError(t, err) {
+		jsons := string(data)
+		assert.Contains(t, jsons, errMsg.Status.String())
+		assert.Contains(t, jsons, errString)
+
+		subTest := makeUnmarshalJSONTest(data, errMsg.Status, errString)
+		t.Run("TestUnmarshalJSON", subTest)
+	}
+}
+
+func makeUnmarshalJSONTest(data []byte, status errmsg.ErrStatus, errString string) func(*testing.T) {
+	return func(t *testing.T) {
+		errMsg := &errmsg.ErrMsg{}
+		err := json.Unmarshal(data, errMsg)
+		if assert.NoError(t, err) {
+			assert.Equal(t, status, errMsg.Status)
+			assert.Equal(t, errString, errMsg.Message)
+		}
+	}
 }
