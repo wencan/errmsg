@@ -31,6 +31,10 @@ var status2HTTPStatus = map[ErrStatus]int{
 
 // HTTPStatus Get HTTP status by error status
 func HTTPStatus(err error) int {
+	if err == nil {
+		return http.StatusOK
+	}
+
 	errMsg, ok := err.(*ErrMsg)
 	if ok {
 		httpStatus, exists := status2HTTPStatus[errMsg.Status]
