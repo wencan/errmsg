@@ -48,7 +48,7 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ExampleHTTP_zap() {
+func ExampleHTTPStatus_zap() {
 	errmsg.SetFlags(errmsg.FstdFlag | errmsg.Fshortfile)
 
 	logger := zap.NewExample() // It's so thoughtful!
