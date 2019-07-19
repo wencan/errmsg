@@ -10,6 +10,7 @@ package errmsg_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -77,27 +78,35 @@ func TestUnwrap(t *testing.T) {
 	assert.Equal(t, err.Error(), errMsg.Message)
 }
 
-func TestMarshalJSON(t *testing.T) {
+func TestErrMsgMarshalJSON(t *testing.T) {
 	errString := "this is a test"
 	errMsg := errmsg.WrapError(errmsg.ErrDataLoss, errors.New(errString))
 	data, err := json.Marshal(errMsg)
 	if assert.NoError(t, err) {
 		jsons := string(data)
+		t.Log(errMsg.String())
 		assert.Contains(t, jsons, errMsg.Status.String())
 		assert.Contains(t, jsons, errString)
 
-		subTest := makeUnmarshalJSONTest(data, errMsg.Status, errString)
-		t.Run("TestUnmarshalJSON", subTest)
+		t.Run("TestUnmarshalJSON", func(t *testing.T) {
+			errMsg := &errmsg.ErrMsg{}
+			err := json.Unmarshal(data, errMsg)
+			if assert.NoError(t, err) {
+				assert.Equal(t, errmsg.ErrDataLoss, errMsg.Status)
+				assert.Equal(t, errString, errMsg.Message)
+			}
+		})
 	}
 }
 
-func makeUnmarshalJSONTest(data []byte, status errmsg.ErrStatus, errString string) func(*testing.T) {
-	return func(t *testing.T) {
-		errMsg := &errmsg.ErrMsg{}
-		err := json.Unmarshal(data, errMsg)
-		if assert.NoError(t, err) {
-			assert.Equal(t, status, errMsg.Status)
-			assert.Equal(t, errString, errMsg.Message)
-		}
-	}
+func TestErrMsgString(t *testing.T) {
+	errmsg.SetFlags(errmsg.FstdFlag | errmsg.Fshortfile)
+
+	errString := "this is a test"
+	errMsg := errmsg.WrapError(errmsg.ErrDataLoss, errors.New(errString))
+	assert.Implements(t, (*fmt.Stringer)(nil), errMsg)
+	str := errMsg.String()
+	assert.Contains(t, str, "status: DataLoss, message: this is a test")
+	assert.Contains(t, str, "file: errmsg_test.go")
+	assert.Contains(t, str, "line:")
 }

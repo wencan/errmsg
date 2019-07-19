@@ -18,13 +18,13 @@ import (
 )
 
 const (
-	// FstdFlag only record error status and message
+	// FstdFlag just wrap error status and message
 	FstdFlag = 1 << iota
 
-	// Fshortfile attach file name and line number, overrides Flongfile
+	// Fshortfile capture file name and line number, overrides Flongfile
 	Fshortfile
 
-	// Flongfile attach full file path and line number
+	// Flongfile capture full file path and line number
 	Flongfile
 )
 
@@ -83,13 +83,22 @@ func WrapErrorWithStack(status ErrStatus, err error) *ErrMsg {
 	return errMsg
 }
 
+// Error implement error.
 func (errMsg *ErrMsg) Error() string {
-	// 如果是反序列化来的，error为nil
+	// error is nil if errMsg is from deserialize
 	return errMsg.Message
 }
 
+// String implement Stringer
 func (errMsg *ErrMsg) String() string {
-	return fmt.Sprintf("status: %s, message: %s", errMsg.Status, errMsg.Message)
+	str := fmt.Sprintf("status: %s, message: %s", errMsg.Status, errMsg.Message)
+	if errMsg.File != "" {
+		str += fmt.Sprintf(", file: %s", errMsg.File)
+		if errMsg.Line != 0 {
+			str += fmt.Sprintf(", line: %d", errMsg.Line)
+		}
+	}
+	return str
 }
 
 func (errMsg *ErrMsg) appendFileLineIfNeed() {
