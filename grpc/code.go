@@ -9,6 +9,7 @@ package grpc
 import (
 	"github.com/wencan/errmsg"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var status2code = map[errmsg.ErrStatus]codes.Code{
@@ -35,6 +36,11 @@ var status2code = map[errmsg.ErrStatus]codes.Code{
 func Code(err error) codes.Code {
 	if err == nil {
 		return codes.OK
+	}
+
+	code := status.Code(err)
+	if code != codes.Unknown {
+		return code
 	}
 
 	errMsg, ok := err.(*errmsg.ErrMsg)

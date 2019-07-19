@@ -26,6 +26,15 @@ func TestStatus(t *testing.T) {
 	assert.Equal(t, codes.NotFound, status.Code(st.Err()))
 }
 
+func TestGRPCStatus(t *testing.T) {
+	errString := "this is a test"
+	err := status.Error(codes.NotFound, errString)
+	st := errmsg_grpc.Status(err)
+	assert.Equal(t, codes.NotFound, st.Code())
+	assert.Equal(t, errString, st.Message())
+	assert.Equal(t, codes.NotFound, status.Code(st.Err()))
+}
+
 func TestCustomStatus(t *testing.T) {
 	errCustom := errmsg.ErrStatus(1004)
 

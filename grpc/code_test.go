@@ -9,6 +9,8 @@ import (
 	"errors"
 	"testing"
 
+	"google.golang.org/grpc/status"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/wencan/errmsg"
 	errmsg_grpc "github.com/wencan/errmsg/grpc"
@@ -16,9 +18,15 @@ import (
 )
 
 func TestCode(t *testing.T) {
-	err := errmsg.WrapError(errmsg.ErrNotFound, errors.New("test"))
+	var err error = errmsg.WrapError(errmsg.ErrNotFound, errors.New("test"))
 	code := errmsg_grpc.Code(err)
 	assert.Equal(t, codes.NotFound, code)
+}
+
+func TestGRPCCode(t *testing.T) {
+	var err error = status.Errorf(codes.Internal, "test")
+	code := errmsg_grpc.Code(err)
+	assert.Equal(t, codes.Internal, code)
 }
 
 func TestOverwriteCode(t *testing.T) {

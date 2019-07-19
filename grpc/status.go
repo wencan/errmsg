@@ -13,10 +13,15 @@ import (
 )
 
 // Status Convert errmsg.ErrMsg to grpc/status.Status.
-// Usage: Status(err).Err()
+// Usage: var err error = Status(err).Err()
 func Status(err error) *status.Status {
 	if err == nil {
 		return status.New(codes.OK, "")
+	}
+	if se, ok := err.(interface {
+		GRPCStatus() *status.Status
+	}); ok {
+		return se.GRPCStatus()
 	}
 
 	code := Code(err)
