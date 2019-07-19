@@ -14,7 +14,8 @@ import (
 )
 
 // Marshaler Marshale errmsg.ErrMsg as zap.Field
-// Usage: field = zap.Object(key, Marshaler(err))
+//
+//    field = zap.Object(key, Marshaler(err))
 func Marshaler(err error) zapcore.ObjectMarshalerFunc {
 	return func(enc zapcore.ObjectEncoder) error {
 		errMsg := errmsg.Unwrap(err)
