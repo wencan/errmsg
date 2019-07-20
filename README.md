@@ -36,6 +36,10 @@ structured error representation
 	fmt.Println(errmsg_grpc.Status(err).Err())
 
 	zapLogger := zap.NewExample()
-	// Output: INFO   ???.go:?? Unavailable        {"status": "Unavailable", "message": "this is a test", "file": "???.go", "line": ??}
-	zapLogger.Info(errMsg.Status.String(), errmsg_zap.Fields(err)...)
+	// Output: ERROR   ???.go:?? error information        {"status": "Unavailable", "message": "this is a test", "file": "???.go", "line": ??}
+	zapLogger.Error("error information", errmsg_zap.Fields(err)...)
+
+	logrusLogger := logrus.New()
+	// Output: time="... ..." level=error msg="error information" file=???.go line=?? message="this is a test" status=Unavailable
+	logrusLogger.WithFields(errmsg_logrus.Fields(err)).Error("error information")
 ```
